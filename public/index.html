@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de Complementos</title>
+<style>
+  :root {
+    --bg: #f6f4f0;
+    --surface: #ffffff;
+    --surface-sunken: #edeae3;
+    --border: #e2ddd3;
+    --text: #232019;
+    --text-muted: #79736a;
+    --accent: #8a4b3b;
+    --accent-tint: #f1e3dc;
+    --danger: #a3432f;
+    --danger-tint: #f6e2dd;
+    --shadow: 0 1px 2px rgba(35,32,25,0.05), 0 10px 30px -16px rgba(35,32,25,0.22);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1a1815;
+      --surface: #232019;
+      --surface-sunken: #171512;
+      --border: #37332a;
+      --text: #ede8de;
+      --text-muted: #a49b8b;
+      --accent: #d99277;
+      --accent-tint: #362520;
+      --danger: #d1795f;
+      --danger-tint: #3a2620;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 30px -16px rgba(0,0,0,0.55);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1a1815;
+    --surface: #232019;
+    --surface-sunken: #171512;
+    --border: #37332a;
+    --text: #ede8de;
+    --text-muted: #a49b8b;
+    --accent: #d99277;
+    --accent-tint: #362520;
+    --danger: #d1795f;
+    --danger-tint: #3a2620;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 30px -16px rgba(0,0,0,0.55);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0;
+  }
+
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; margin: 0; text-wrap: balance; }
+
+  .layout { display: flex; min-height: 100dvh; }
+
+  aside {
+    width: 260px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    position: sticky;
+    top: 0;
+  }
+
+  .sidebar-head { padding: 22px 20px 14px; border-bottom: 1px solid var(--border); }
+  .sidebar-head .eyebrow { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-muted); }
+  .sidebar-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .sidebar-head .count { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+  .export-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 5px 9px;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: inherit;
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+  .export-btn:hover { background: var(--surface-sunken); color: var(--text); }
+  .export-btn svg { width: 13px; height: 13px; }
+  .export-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .new-btn {
+    margin: 14px 20px 4px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: calc(100% - 40px);
+  }
+  .new-btn:hover { filter: brightness(1.06); }
+
+  .edit-btn {
+    margin: 0 20px 14px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: calc(100% - 40px);
+  }
+  .edit-btn:hover { background: var(--surface-sunken); }
+  .edit-btn:disabled { opacity: 0.5; cursor: default; }
+
+  #search {
+    margin: 12px 20px 0;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-sunken);
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: inherit;
+  }
+  #search:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  nav#item-list { overflow-y: auto; flex: 1; padding: 10px 10px 20px; }
+  .letter-group { margin-top: 14px; }
+  .letter-group:first-child { margin-top: 10px; }
+  .letter-label { font-size: 0.7rem; color: var(--text-muted); padding: 4px 10px; font-weight: 600; }
+
+  .item-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 9px 10px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    cursor: pointer;
+    font-family: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .item-btn:hover { background: var(--surface-sunken); }
+  .item-btn.active { background: var(--accent-tint); color: var(--accent); font-weight: 600; }
+  .item-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  main { flex: 1; min-width: 0; padding: 48px 48px 64px; display: flex; justify-content: center; }
+
+  .detail { max-width: 880px; width: 100%; }
+  .detail-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+  .detail h2 { font-size: 2.1rem; font-weight: 600; letter-spacing: -0.01em; }
+
+  .photo-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  figure .frame {
+    aspect-ratio: 4/5;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface-sunken);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  figcaption { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); text-align: center; }
+
+  .description {
+    margin-top: 26px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+  }
+  .description .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px; }
+  .description p { margin: 0; line-height: 1.65; font-size: 0.98rem; max-width: 65ch; white-space: pre-wrap; }
+
+  .extras-section { margin-top: 26px; }
+  .extras-section .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px; }
+  .extras-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .extra-thumb {
+    width: 88px;
+    height: 88px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface-sunken);
+    flex-shrink: 0;
+    position: relative;
+    cursor: pointer;
+  }
+  .extra-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .extra-thumb .remove-extra {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(20,18,15,0.6);
+    color: #fff;
+    font-size: 0.85rem;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .extra-thumb:hover .remove-extra { display: flex; }
+  .extra-add {
+    width: 88px;
+    height: 88px;
+    border-radius: 8px;
+    border: 1.5px dashed var(--border);
+    background: var(--surface-sunken);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .extra-add:hover { border-color: var(--accent); color: var(--accent); }
+  .extra-add input { display: none; }
+  .extra-add.uploading { opacity: 0.5; pointer-events: none; }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,18,15,0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    z-index: 20;
+    cursor: zoom-out;
+  }
+  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+
+  .welcome { text-align: center; color: var(--text-muted); padding: 80px 20px; max-width: 480px; margin: 0 auto; }
+  .welcome h1 { font-size: 2.6rem; color: var(--text); margin-bottom: 24px; }
+  .welcome .brand-mark { height: 112px; width: auto; margin: 0 auto 28px; display: block; filter: var(--brand-mark-filter, none); }
+  .welcome p { font-size: 0.98rem; line-height: 1.6; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .welcome .brand-mark { filter: invert(1) brightness(1.6); }
+  }
+  :root[data-theme="dark"] .welcome .brand-mark { filter: invert(1) brightness(1.6); }
+
+  .form-wrap { max-width: 720px; width: 100%; }
+  .form-wrap h2 { font-size: 1.7rem; margin-bottom: 24px; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+  .field label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 600; }
+
+  input[type="text"], input[type="email"], input[type="password"], textarea {
+    font-family: inherit;
+    font-size: 0.98rem;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  textarea { resize: vertical; min-height: 110px; line-height: 1.5; }
+
+  .photo-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .photo-caption-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: -8px; }
+  .photo-caption-row span { text-align: center; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .photo-uploader {
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    aspect-ratio: 4/5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-sunken);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 12px;
+  }
+  .photo-uploader:hover { border-color: var(--accent); }
+  .photo-uploader img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .photo-uploader input { display: none; }
+  .photo-uploader .hint { position: relative; z-index: 1; }
+  .photo-uploader.has-image .hint { display: none; }
+  .photo-uploader .replace-hint {
+    position: absolute; inset: auto 0 0 0;
+    background: rgba(20,18,15,0.55);
+    color: #fff; font-size: 0.72rem; padding: 6px; text-align: center;
+    opacity: 0; transition: opacity 0.15s ease;
+  }
+  .photo-uploader.has-image:hover .replace-hint { opacity: 1; }
+
+  .actions { display: flex; gap: 10px; margin-top: 28px; align-items: center; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn:hover { background: var(--surface-sunken); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-danger { color: var(--danger); border-color: var(--danger-tint); }
+  .btn-danger:hover { background: var(--danger-tint); }
+
+  .status-msg { font-size: 0.85rem; color: var(--text-muted); }
+  .status-msg.error { color: var(--danger); }
+
+  .login-link {
+    margin-top: auto;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    background: none;
+    border-left: none; border-right: none; border-bottom: none;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    opacity: 0.6;
+  }
+  .login-link:hover { opacity: 1; }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,18,15,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 30;
+  }
+  .modal-panel {
+    background: var(--surface);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 960px;
+    max-height: min(720px, 90vh);
+    display: flex;
+    overflow: hidden;
+  }
+  .modal-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    background: var(--surface-sunken);
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-sidebar-head {
+    padding: 18px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .modal-sidebar-head h3 { font-size: 1.05rem; }
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-new-btn {
+    margin: 12px 14px 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .modal-new-btn:hover { filter: brightness(1.06); }
+  .modal-item-list { overflow-y: auto; flex: 1; padding: 10px 8px 16px; }
+  .modal-body {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    padding: 32px 36px;
+  }
+
+  .login-panel { max-width: 360px; width: 100%; padding: 32px; }
+  .login-panel h2 { font-size: 1.4rem; margin-bottom: 18px; }
+
+  @media (max-width: 760px) {
+    .modal-panel { flex-direction: column; max-height: 92vh; }
+    .modal-sidebar { width: 100%; max-height: 30vh; }
+    .modal-body { padding: 22px 20px; }
+  }
+
+  @media (max-width: 760px) {
+    .layout { flex-direction: column; }
+    aside { width: 100%; height: auto; position: relative; max-height: 40vh; }
+    main { padding: 28px 20px 48px; }
+    .photo-pair, .photo-fields, .photo-caption-row { grid-template-columns: 1fr; }
+    .detail h2 { font-size: 1.7rem; }
+  }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+
+<div class="layout">
+  <aside>
+    <div class="sidebar-head">
+      <div class="sidebar-head-row">
+        <div class="eyebrow">Guía de Complementos</div>
+        <button class="export-btn" id="export-pdf-btn" title="Exportar todos los complementos en PDF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          PDF
+        </button>
+      </div>
+      <div class="count" id="count-label">cargando…</div>
+    </div>
+    <button class="new-btn" id="new-btn">+ Nuevo elemento</button>
+    <button class="edit-btn" id="edit-btn">✎ Editar elemento</button>
+    <input id="search" type="text" placeholder="Buscar…" autocomplete="off">
+    <nav id="item-list"></nav>
+  </aside>
+  <main>
+    <div id="content">
+      <div class="welcome" id="welcome-initial"></div>
+    </div>
+  </main>
+</div>
+
+<div id="modal-root"></div>
+
+<!-- ============ CONFIGURA AQUÍ TU PROYECTO SUPABASE ============ -->
+<script>
+  // Sustituye estos dos valores por los de tu proyecto Supabase
+  // (Panel del proyecto -> Project Settings -> API)
+  const SUPABASE_URL = "https://eewmmclzulnsdopjbuev.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVld21tY2x6dWxuc2RvcGpidWV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxMTUzMjcsImV4cCI6MjEwNDY5MTMyN30.WdxG601f2miebjAlDgwls-oMg-6XQ5SNH3TBQJ0UFFU";
+
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+<!-- =============================================================== -->
+
+<script>
+  const BRAND_MARK_SRC = ""; // opcional: pega aquí tu logo en base64 (data:image/png;base64,...) o déjalo vacío
+
+  function welcomeHtml() {
+    return `
+      <h1>Guía de Complementos</h1>
+      ${BRAND_MARK_SRC ? `<img class="brand-mark" src="${BRAND_MARK_SRC}" alt="Marca">` : ''}
+      <p>Selecciona un elemento del menú para ver la foto final, la guía a seguir y las anotaciones.</p>
+    `;
+  }
+  document.getElementById('welcome-initial').innerHTML = welcomeHtml();
+</script>
+
+<script>
+  let isEditor = true;
+  const itemsCache = new Map();
+  let activeId = null;
+  let searchTerm = '';
+
+  let modalOpen = false;
+  let modalActiveId = null; // null, or an id, or 'new'
+  let draft = null;
+
+  const itemList = document.getElementById('item-list');
+  const countLabel = document.getElementById('count-label');
+  const content = document.getElementById('content');
+  const searchInput = document.getElementById('search');
+  const newBtn = document.getElementById('new-btn');
+  const editBtn = document.getElementById('edit-btn');
+  const modalRoot = document.getElementById('modal-root');
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function groupAlphabetically(items) {
+    const groups = new Map();
+    for (const item of items) {
+      const letter = (item.title || '?').trim().charAt(0).toUpperCase() || '#';
+      if (!groups.has(letter)) groups.set(letter, []);
+      groups.get(letter).push(item);
+    }
+    return Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0], 'es'));
+  }
+
+  function renderList() {
+    let items = Array.from(itemsCache.values());
+    if (searchTerm) {
+      const t = searchTerm.toLowerCase();
+      items = items.filter(i => (i.title || '').toLowerCase().includes(t));
+    }
+    items.sort((a, b) => (a.title || '').localeCompare(b.title || '', 'es'));
+
+    countLabel.textContent = itemsCache.size
+      ? `${itemsCache.size} elemento${itemsCache.size === 1 ? '' : 's'}`
+      : 'sin elementos todavía';
+
+    itemList.innerHTML = '';
+    if (!items.length) {
+      const p = document.createElement('div');
+      p.style.cssText = 'padding:14px 10px;color:var(--text-muted);font-size:0.85rem;';
+      p.textContent = searchTerm ? 'Sin resultados.' : (isEditor ? 'Añade tu primer elemento.' : 'Todavía no hay elementos.');
+      itemList.appendChild(p);
+      return;
+    }
+
+    for (const [letter, group] of groupAlphabetically(items)) {
+      const wrap = document.createElement('div');
+      wrap.className = 'letter-group';
+      const label = document.createElement('div');
+      label.className = 'letter-label';
+      label.textContent = letter;
+      wrap.appendChild(label);
+      for (const item of group) {
+        const btn = document.createElement('button');
+        btn.className = 'item-btn' + (item.id === activeId ? ' active' : '');
+        btn.textContent = item.title || '(sin título)';
+        btn.onclick = () => selectForView(item.id);
+        wrap.appendChild(btn);
+      }
+      itemList.appendChild(wrap);
+    }
+  }
+
+  function selectForView(id) {
+    activeId = id;
+    renderList();
+    renderContent();
+  }
+
+  function renderViewer() {
+    const item = itemsCache.get(activeId);
+    if (!item) {
+      content.innerHTML = `<div class="welcome">${welcomeHtml()}</div>`;
+      return;
+    }
+    const finalUrl = item.final_url || '';
+    const guideUrl = item.guide_url || '';
+    content.innerHTML = `
+      <div class="detail">
+        <div class="detail-head">
+          <h2>${escapeHtml(item.title)}</h2>
+        </div>
+        <div class="photo-pair">
+          <figure>
+            <div class="frame">${finalUrl ? `<img src="${finalUrl}" alt="Foto final de ${escapeHtml(item.title)}">` : ''}</div>
+            <figcaption>Foto final</figcaption>
+          </figure>
+          <figure>
+            <div class="frame">${guideUrl ? `<img src="${guideUrl}" alt="Guía para ${escapeHtml(item.title)}">` : ''}</div>
+            <figcaption>Guía a seguir</figcaption>
+          </figure>
+        </div>
+        <div class="description">
+          <div class="label">Anotaciones</div>
+          <p>${escapeHtml(item.description) || '—'}</p>
+        </div>
+        ${(item.extras && item.extras.length) ? `
+          <div class="extras-section">
+            <div class="label">Vistas extra</div>
+            <div class="extras-row">
+              ${item.extras.map(ex => `<div class="extra-thumb" data-url="${ex.url}"><img src="${ex.url}" alt="Vista extra"></div>`).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    content.querySelectorAll('.extra-thumb').forEach(el => {
+      el.onclick = () => openLightbox(el.dataset.url);
+    });
+  }
+
+  function openLightbox(url) {
+    const box = document.createElement('div');
+    box.className = 'lightbox';
+    box.innerHTML = `<img src="${url}" alt="">`;
+    box.onclick = () => box.remove();
+    document.body.appendChild(box);
+  }
+
+  function renderContent() { renderViewer(); }
+
+  // ---------- modal editor ----------
+  function openModal(preselectId) {
+    modalOpen = true;
+    if (preselectId === 'new') {
+      startNewInModal();
+    } else if (preselectId && itemsCache.has(preselectId)) {
+      selectForEditInModal(preselectId);
+    } else {
+      modalActiveId = null;
+      draft = null;
+    }
+    renderModal();
+  }
+
+  function closeModal() {
+    modalOpen = false;
+    modalActiveId = null;
+    draft = null;
+    modalRoot.innerHTML = '';
+  }
+
+  function selectForEditInModal(id) {
+    const item = itemsCache.get(id);
+    if (!item) return;
+    modalActiveId = id;
+    draft = {
+      title: item.title || '',
+      description: item.description || '',
+      finalPath: item.final_path || null, finalUrl: item.final_url || null,
+      guidePath: item.guide_path || null, guideUrl: item.guide_url || null,
+      extras: (item.extras || []).slice(),
+    };
+    renderModal();
+  }
+
+  function startNewInModal() {
+    modalActiveId = 'new';
+    draft = { title: '', description: '', finalPath: null, finalUrl: null, guidePath: null, guideUrl: null, extras: [] };
+    renderModal();
+  }
+
+  function renderModal() {
+    if (!modalOpen) { modalRoot.innerHTML = ''; return; }
+
+    const items = Array.from(itemsCache.values()).sort((a, b) => (a.title || '').localeCompare(b.title || '', 'es'));
+    const listHtml = items.length
+      ? groupAlphabetically(items).map(([letter, group]) => `
+          <div class="letter-group">
+            <div class="letter-label">${letter}</div>
+            ${group.map(item => `<button class="item-btn modal-item-btn${item.id === modalActiveId ? ' active' : ''}" data-id="${item.id}">${escapeHtml(item.title || '(sin título)')}</button>`).join('')}
+          </div>
+        `).join('')
+      : `<div style="padding:14px 10px;color:var(--text-muted);font-size:0.85rem;">Añade tu primer elemento.</div>`;
+
+    modalRoot.innerHTML = `
+      <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Editar elementos">
+          <div class="modal-sidebar">
+            <div class="modal-sidebar-head">
+              <h3>Elementos</h3>
+              <button class="modal-close" id="modal-close-btn" aria-label="Cerrar">×</button>
+            </div>
+            <button class="modal-new-btn" id="modal-new-btn">+ Nuevo elemento</button>
+            <nav class="modal-item-list">${listHtml}</nav>
+          </div>
+          <div class="modal-body" id="modal-body"></div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('modal-overlay').addEventListener('mousedown', (e) => {
+      if (e.target.id === 'modal-overlay') closeModal();
+    });
+    document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+    document.getElementById('modal-new-btn').addEventListener('click', startNewInModal);
+    modalRoot.querySelectorAll('.modal-item-btn').forEach(btn => {
+      btn.addEventListener('click', () => selectForEditInModal(btn.dataset.id));
+    });
+
+    renderModalBody();
+  }
+
+  function photoUploaderHtml(kind, url) {
+    return `
+      <label class="photo-uploader ${url ? 'has-image' : ''}" data-kind="${kind}">
+        ${url ? `<img src="${url}" alt="">` : ''}
+        <span class="hint">Toca para subir foto</span>
+        ${url ? '<span class="replace-hint">Toca para reemplazar</span>' : ''}
+        <input type="file" accept="image/*" data-kind="${kind}">
+      </label>
+    `;
+  }
+
+  function renderModalBody() {
+    const modalBody = document.getElementById('modal-body');
+    if (!modalBody) return;
+
+    if (!draft) {
+      modalBody.innerHTML = `<div class="welcome" style="padding:60px 20px;"><h1 style="font-size:1.7rem;">Editar elementos</h1><p>Elige un elemento de la lista o crea uno nuevo.</p></div>`;
+      return;
+    }
+
+    const isNew = modalActiveId === 'new';
+    modalBody.innerHTML = `
+      <div class="form-wrap">
+        <h2>${isNew ? 'Nuevo elemento' : 'Editar elemento'}</h2>
+        <div class="field">
+          <label for="f-title">Título</label>
+          <input type="text" id="f-title" value="${escapeHtml(draft.title)}" placeholder="Nombre del complemento">
+        </div>
+        <div class="field">
+          <label>Fotos</label>
+          <div class="photo-fields">
+            ${photoUploaderHtml('final', draft.finalUrl)}
+            ${photoUploaderHtml('guide', draft.guideUrl)}
+          </div>
+          <div class="photo-caption-row">
+            <span>Foto final</span>
+            <span>Guía a seguir</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-desc">Anotaciones / descripción</label>
+          <textarea id="f-desc" placeholder="Notas sobre cómo hacer esta foto…">${escapeHtml(draft.description)}</textarea>
+        </div>
+        <div class="field">
+          <label>Vistas extra</label>
+          <div class="extras-row" id="extras-row">
+            ${draft.extras.map(ex => `
+              <div class="extra-thumb" data-path="${ex.path}">
+                <img src="${ex.url}" alt="">
+                <button type="button" class="remove-extra" data-remove="${ex.path}">×</button>
+              </div>
+            `).join('')}
+            <label class="extra-add" id="extra-add">
+              +
+              <input type="file" accept="image/*" id="extra-input">
+            </label>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="save-btn">${isNew ? 'Crear elemento' : 'Guardar cambios'}</button>
+          ${!isNew ? '<button class="btn btn-danger" id="delete-btn">Eliminar</button>' : ''}
+          <span class="status-msg" id="status-msg"></span>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('f-title').addEventListener('input', (e) => draft.title = e.target.value);
+    document.getElementById('f-desc').addEventListener('input', (e) => draft.description = e.target.value);
+    modalBody.querySelectorAll('.photo-uploader input').forEach(input => {
+      input.addEventListener('change', (e) => handlePhotoUpload(e.target.dataset.kind, e.target.files[0]));
+    });
+    modalBody.querySelectorAll('.extra-thumb img').forEach(img => {
+      img.parentElement.addEventListener('click', (e) => {
+        if (e.target.closest('.remove-extra')) return;
+        openLightbox(img.src);
+      });
+    });
+    modalBody.querySelectorAll('.remove-extra').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeExtra(btn.dataset.remove);
+      });
+    });
+    const extraInput = document.getElementById('extra-input');
+    if (extraInput) extraInput.addEventListener('change', (e) => handleExtraUpload(e.target.files[0]));
+    document.getElementById('save-btn').addEventListener('click', saveDraft);
+    const delBtn = document.getElementById('delete-btn');
+    if (delBtn) delBtn.onclick = deleteActive;
+  }
+
+  function setStatus(msg, isError) {
+    const el = document.getElementById('status-msg');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.toggle('error', !!isError);
+  }
+
+  function storagePathFor(kind, file) {
+    const safe = (file.name || 'foto').replace(/[^a-zA-Z0-9_.\-]/g, '_');
+    return `${kind}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${safe}`;
+  }
+
+  async function uploadPhoto(kind, file) {
+    const path = storagePathFor(kind, file);
+    const { error } = await sb.storage.from('fotos').upload(path, file, { contentType: file.type, upsert: false });
+    if (error) throw error;
+    const { data } = sb.storage.from('fotos').getPublicUrl(path);
+    return { path, url: data.publicUrl };
+  }
+
+  async function handlePhotoUpload(kind, file) {
+    if (!file) return;
+    setStatus('Subiendo foto…');
+    try {
+      const { path, url } = await uploadPhoto(kind, file);
+      if (kind === 'final') { draft.finalPath = path; draft.finalUrl = url; }
+      else { draft.guidePath = path; draft.guideUrl = url; }
+      renderModalBody();
+      setStatus('Foto añadida. Recuerda guardar.');
+    } catch (err) {
+      setStatus('No se pudo subir la foto', true);
+    }
+  }
+
+  async function handleExtraUpload(file) {
+    if (!file) return;
+    const addEl = document.getElementById('extra-add');
+    if (addEl) addEl.classList.add('uploading');
+    setStatus('Subiendo foto extra…');
+    try {
+      const { path, url } = await uploadPhoto('extra', file);
+      draft.extras.push({ path, url });
+      renderModalBody();
+      setStatus('Vista extra añadida. Recuerda guardar.');
+    } catch (err) {
+      setStatus('No se pudo subir la foto extra', true);
+      if (addEl) addEl.classList.remove('uploading');
+    }
+  }
+
+  function removeExtra(path) {
+    const removed = draft.extras.find(ex => ex.path === path);
+    draft.extras = draft.extras.filter(ex => ex.path !== path);
+    if (removed) sb.storage.from('fotos').remove([removed.path]).catch(() => {});
+    renderModalBody();
+    setStatus('Vista extra eliminada. Recuerda guardar.');
+  }
+
+  async function saveDraft() {
+    if (!draft.title.trim()) { setStatus('Ponle un título al elemento', true); return; }
+    setStatus('Guardando…');
+    try {
+      const payload = {
+        title: draft.title.trim(),
+        description: draft.description,
+        final_path: draft.finalPath, final_url: draft.finalUrl,
+        guide_path: draft.guidePath, guide_url: draft.guideUrl,
+        extras: draft.extras,
+        updated_at: new Date().toISOString(),
+      };
+      if (modalActiveId && modalActiveId !== 'new') {
+        const { error } = await sb.from('items').update(payload).eq('id', modalActiveId);
+        if (error) throw error;
+      } else {
+        const { data, error } = await sb.from('items').insert(payload).select().single();
+        if (error) throw error;
+        modalActiveId = data.id;
+      }
+      setStatus('Guardado.');
+      await refreshItems();
+      renderModal();
+    } catch (err) {
+      setStatus('No se pudo guardar', true);
+    }
+  }
+
+  async function deleteActive() {
+    if (!modalActiveId || modalActiveId === 'new') return;
+    const oldFinal = draft.finalPath;
+    const oldGuide = draft.guidePath;
+    const oldExtras = draft.extras.slice();
+    const id = modalActiveId;
+    try {
+      const { error } = await sb.from('items').delete().eq('id', id);
+      if (error) throw error;
+      itemsCache.delete(id);
+      const toRemove = [oldFinal, oldGuide, ...oldExtras.map(ex => ex.path)].filter(Boolean);
+      if (toRemove.length) sb.storage.from('fotos').remove(toRemove).catch(() => {});
+      if (activeId === id) activeId = null;
+      modalActiveId = null;
+      draft = null;
+      renderList();
+      renderContent();
+      renderModal();
+    } catch (err) {
+      setStatus('No se pudo eliminar', true);
+    }
+  }
+
+  newBtn.addEventListener('click', () => openModal('new'));
+  editBtn.addEventListener('click', () => openModal(activeId || null));
+  searchInput.addEventListener('input', (e) => { searchTerm = e.target.value; renderList(); });
+
+  // ---------- PDF export ----------
+  const exportPdfBtn = document.getElementById('export-pdf-btn');
+
+  function loadImageData(url) {
+    return new Promise((resolve) => {
+      if (!url) { resolve(null); return; }
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          resolve({ dataUrl, width: img.naturalWidth, height: img.naturalHeight });
+        } catch (err) {
+          resolve(null);
+        }
+      };
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+  }
+
+  async function exportPdf() {
+    if (!window.jspdf) { setExportStatus('No se pudo cargar el generador de PDF.'); return; }
+    const items = Array.from(itemsCache.values()).sort((a, b) => (a.title || '').localeCompare(b.title || '', 'es'));
+    if (!items.length) { setExportStatus('No hay elementos que exportar.'); return; }
+
+    exportPdfBtn.disabled = true;
+    const originalLabel = exportPdfBtn.innerHTML;
+    exportPdfBtn.innerHTML = 'Generando…';
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const margin = 40;
+      const contentW = pageW - margin * 2;
+
+      const indexRowH = 20;
+      const indexTitleSpace = 70;
+      const rowsPerIndexPage = Math.max(1, Math.floor((pageH - margin * 2 - indexTitleSpace) / indexRowH));
+      const indexPageCount = Math.max(1, Math.ceil(items.length / rowsPerIndexPage));
+      const firstContentPage = indexPageCount + 1;
+
+      function drawIndexPages() {
+        let row = 0;
+        for (let p = 0; p < indexPageCount; p++) {
+          if (p > 0) pdf.addPage();
+          let y = margin;
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(22);
+          pdf.setTextColor(35, 32, 25);
+          pdf.text(p === 0 ? 'Índice' : 'Índice (cont.)', margin, y + 6);
+          y += indexTitleSpace;
+
+          pdf.setFontSize(11);
+          const rowsOnThisPage = Math.min(rowsPerIndexPage, items.length - row);
+          for (let r = 0; r < rowsOnThisPage; r++) {
+            const item = items[row];
+            const pageNum = firstContentPage + row;
+            const name = item.title || '(sin título)';
+            const pageStr = String(pageNum);
+
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(35, 32, 25);
+            const nameW = pdf.getTextWidth(name);
+            const pageW_ = pdf.getTextWidth(pageStr);
+            pdf.text(name, margin, y);
+
+            const dotsStart = margin + nameW + 6;
+            const dotsEnd = margin + contentW - pageW_ - 6;
+            if (dotsEnd > dotsStart) {
+              pdf.setTextColor(210, 204, 194);
+              const dotWidth = pdf.getTextWidth('. ');
+              const dotsCount = Math.max(0, Math.floor((dotsEnd - dotsStart) / dotWidth));
+              pdf.text('. '.repeat(dotsCount), dotsStart, y);
+            }
+
+            pdf.setTextColor(35, 32, 25);
+            pdf.text(pageStr, margin + contentW - pageW_, y);
+
+            y += indexRowH;
+            row++;
+          }
+        }
+      }
+
+      drawIndexPages();
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        pdf.addPage();
+
+        let y = margin;
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(20);
+        pdf.setTextColor(35, 32, 25);
+        pdf.text(item.title || '(sin título)', margin, y + 6);
+        y += 34;
+
+        const [finalImg, guideImg] = await Promise.all([
+          loadImageData(item.final_url),
+          loadImageData(item.guide_url),
+        ]);
+
+        const pairGap = 14;
+        const pairW = (contentW - pairGap) / 2;
+        const pairH = pairW * 1.15;
+
+        function drawFitted(imgData, x, boxW, boxH) {
+          if (!imgData) {
+            pdf.setDrawColor(226, 221, 211);
+            pdf.rect(x, y, boxW, boxH);
+            return;
+          }
+          const scale = Math.min(boxW / imgData.width, boxH / imgData.height);
+          const w = imgData.width * scale;
+          const h = imgData.height * scale;
+          const offX = x + (boxW - w) / 2;
+          const offY = y + (boxH - h) / 2;
+          pdf.addImage(imgData.dataUrl, 'JPEG', offX, offY, w, h);
+        }
+
+        drawFitted(finalImg, margin, pairW, pairH);
+        drawFitted(guideImg, margin + pairW + pairGap, pairW, pairH);
+
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(8.5);
+        pdf.setTextColor(121, 115, 106);
+        pdf.text('FOTO FINAL', margin, y + pairH + 12);
+        pdf.text('GUÍA A SEGUIR', margin + pairW + pairGap, y + pairH + 12);
+        y += pairH + 26;
+
+        if (item.description) {
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(9);
+          pdf.setTextColor(121, 115, 106);
+          pdf.text('ANOTACIONES', margin, y);
+          y += 14;
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(10.5);
+          pdf.setTextColor(35, 32, 25);
+          const lines = pdf.splitTextToSize(item.description, contentW);
+          pdf.text(lines, margin, y);
+          y += lines.length * 13 + 16;
+        }
+
+        if (item.extras && item.extras.length) {
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(9);
+          pdf.setTextColor(121, 115, 106);
+          pdf.text('VISTAS EXTRA', margin, y);
+          y += 12;
+
+          const extraImgs = await Promise.all(item.extras.map(ex => loadImageData(ex.url)));
+          const thumbH = 70;
+          const gap = 10;
+          let x = margin;
+          for (const imgData of extraImgs) {
+            if (!imgData) continue;
+            const w = thumbH * (imgData.width / imgData.height);
+            if (x + w > margin + contentW) {
+              x = margin;
+              y += thumbH + gap;
+            }
+            if (y + thumbH > pageH - margin) {
+              pdf.addPage();
+              y = margin;
+              x = margin;
+            }
+            pdf.addImage(imgData.dataUrl, 'JPEG', x, y, w, thumbH);
+            x += w + gap;
+          }
+        }
+      }
+
+      pdf.save('guia-de-complementos.pdf');
+    } catch (err) {
+      setExportStatus('No se pudo generar el PDF.');
+    } finally {
+      exportPdfBtn.disabled = false;
+      exportPdfBtn.innerHTML = originalLabel;
+    }
+  }
+
+  function setExportStatus(msg) {
+    countLabel.textContent = msg;
+    setTimeout(() => renderList(), 2400);
+  }
+
+  exportPdfBtn.addEventListener('click', exportPdf);
+
+  // ---------- datos ----------
+  function applyRow(row) {
+    itemsCache.set(row.id, {
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      final_path: row.final_path, final_url: row.final_url,
+      guide_path: row.guide_path, guide_url: row.guide_url,
+      extras: Array.isArray(row.extras) ? row.extras : [],
+    });
+  }
+
+  async function refreshItems() {
+    const { data, error } = await sb.from('items').select('*').order('title', { ascending: true });
+    if (error) { countLabel.textContent = 'error de sincronización'; return; }
+    itemsCache.clear();
+    (data || []).forEach(applyRow);
+    renderList();
+    renderContent();
+  }
+
+  // ---------- suscripción en tiempo real ----------
+  sb.channel('items-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, (payload) => {
+      if (payload.eventType === 'DELETE') {
+        itemsCache.delete(payload.old.id);
+        if (activeId === payload.old.id) activeId = null;
+      } else {
+        applyRow(payload.new);
+      }
+      renderList();
+      renderContent();
+      if (modalOpen) renderModal();
+    })
+    .subscribe();
+
+  refreshItems();
+</script>
+</body>
+</html>
